@@ -7,16 +7,20 @@ while True:
     if entry.lower() == 'quit':
         break
 
-    if failed_entries > 2:
-        print("Too many failed entries, exiting the program.")
-        break
-
     if not entry.isdigit():
-        print("Invalid input. Please enter a valid number.")
+        print("Invalid entry. Please enter a valid number.")
         failed_entries += 1
+
+        if failed_entries > 2:
+            print("Too many invalid entries. Exiting the program.")
+            break
+
         continue
 
     total_inventory += int(entry)
 
     if total_inventory > 500:
-        print("Warning: Total inventory exceeds 500 units.")
+        print("Warning! Total inventory exceeds 500 units.")
+        break
+
+print
