@@ -20,7 +20,9 @@ while True:
     total_inventory += int(entry)
 
     if total_inventory > 500:
-        print("Warning! Total inventory exceeds 500 units.")
+        print("Warning! Total Inventory exceeds 500 units.")
         break
 
-print
+print ("---End of Day Report---")
+print(f"Total Units Processed: {total_inventory}")
+print(f"Number of Failed/Rejected Entries: {failed_entries}")
