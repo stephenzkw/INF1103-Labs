@@ -33,55 +33,33 @@ def generate_report(total_units, failed_entries, exit_reason):
         print(f"Total Units Processed: {total_units}")
         print(f"Number of Failed/Rejected Entries: {failed_attempts}")
 
-total_inventory = 0
-failed_entries = 0
-exit_reason = "quit" #only changes if forced exit happens
+def main():
+    total_inventory = 0
+    failed_entries = 0
+    exit_reason = "quit"  # only changes if forced exit happens
 
-while True:
-    entry = input("Enter stock quantity (or type 'quit' to exit): ")
+    while True:
+        entry = get_valid_input()
 
-    if entry.lower() == 'quit':
-        break
-
-    if entry.startswith("-") and entry[1:].isdigit():
-        print("Negative values are not allowed")
-        failed_entries += 1
-
-        if failed_entries > 2:
-            exit_reason = "too many invalid inputs"
+        if entry == "quit":
             break
 
-        continue
+        if entry is None:
+            failed_entries += 1
+            if failed_entries > 2:
+                exit_reason = "too many invalid inputs"
+                break
+            continue
 
-    if not entry.isdigit():
-        print("Invalid entry. Please enter a valid number.")
-        failed_entries += 1
+        total_inventory = process_delivery(total_inventory, entry)
+        print(f"Added {entry} units. Current total units: {total_inventory}")
 
-        if failed_entries > 2:
-            exit_reason = "too many invalid inputs"
+        if total_inventory > 500:
+            exit_reason = "capacity exceeded"
             break
+        elif total_inventory > 450:
+            print(f"Alert! Approaching capacity ({total_inventory}/500).")
 
-        continue
+    generate_report(total_inventory, failed_entries, exit_reason)
 
-    total_inventory += int(entry)
-    print(f"Added {entry} units. Current total units: {total_inventory}")
-
-    if total_inventory > 500:
-        exit_reason = "capacity exceeded"
-        break
-    elif total_inventory > 450:
-        print(f"Alert! Approaching capacity ({total_inventory}/500).")
-
-if exit_reason == "too many invalid inputs":
-    print("\n🚫 Process Terminated: too many invalid inputs.")
-    print("Please restart and enter valid stock quantities.")
-
-elif exit_reason == "capacity exceeded":
-    print("\n📦 Process Halted: storage capacity exceeded!")
-    print(f"Total Units Processed: {total_inventory}")
-    print(f"Number of Failed/Rejected Entries: {failed_entries}")
-
-else:
-    print ("\n---End of Day Report---")
-    print(f"Total Units Processed: {total_inventory}")
-    print(f"Number of Failed/Rejected Entries: {failed_entries}")
+main()
