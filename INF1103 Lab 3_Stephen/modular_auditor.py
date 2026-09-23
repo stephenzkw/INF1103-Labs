@@ -20,7 +20,7 @@ def process_delivery(current_total, new_value):
 def calculate_tax(amount):
     return round(amount * 0.10, 2)
 
-def generate_report(total_units, failed_entries, exit_reason):
+def generate_report(total_units, failed_attempts, exit_reason):
     if exit_reason == "too many invalid inputs":
         print("\n🚫 Process Terminated: too many invalid inputs.")
         print("Please restart and enter valid stock quantities.")
