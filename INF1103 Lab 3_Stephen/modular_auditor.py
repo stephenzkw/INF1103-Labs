@@ -1,10 +1,10 @@
 def get_valid_input():
     entry = input("Enter stock quantity (or type 'quit' to exit): ")
 
-    if entry.lower() == "quit":
+    if entry.lower() == 'quit':
         return "quit"
 
-    if entry.startswith("-") and entry[1:].isdigit():
+    if entry.startswith("-") and entry[1:].isdigit(): 
         print("Negative values are not allowed")
         return None
 
@@ -14,16 +14,13 @@ def get_valid_input():
 
     return int(entry)
 
-
 def process_delivery(current_total, new_value):
     return current_total + new_value
 
-
 def calculate_tax(amount):
-    return amount * 0.10
+    return round(amount * 0.10, 2)
 
-
-def generate_report(total_units, failed_attempts, exit_reason):
+def generate_report(total_units, failed_entries, exit_reason):
     if exit_reason == "too many invalid inputs":
         print("\n🚫 Process Terminated: too many invalid inputs.")
         print("Please restart and enter valid stock quantities.")
@@ -36,39 +33,55 @@ def generate_report(total_units, failed_attempts, exit_reason):
         print(f"Total Units Processed: {total_units}")
         print(f"Number of Failed/Rejected Entries: {failed_attempts}")
 
+total_inventory = 0
+failed_entries = 0
+exit_reason = "quit" #only changes if forced exit happens
 
-def main():
-    total_inventory = 0
-    failed_entries = 0
-    exit_reason = "quit"
+while True:
+    entry = input("Enter stock quantity (or type 'quit' to exit): ")
 
-    while True:
-        value = get_valid_input()
+    if entry.lower() == 'quit':
+        break
 
-        if value == "quit":
+    if entry.startswith("-") and entry[1:].isdigit():
+        print("Negative values are not allowed")
+        failed_entries += 1
+
+        if failed_entries > 2:
+            exit_reason = "too many invalid inputs"
             break
 
-        if value is None:
-            failed_entries += 1
+        continue
 
-            if failed_entries > 2:
-                exit_reason = "too many invalid inputs"
-                break
+    if not entry.isdigit():
+        print("Invalid entry. Please enter a valid number.")
+        failed_entries += 1
 
-            continue
-
-        total_inventory = process_delivery(total_inventory, value)
-        tax = calculate_tax(value)
-        print(f"Added {value} units. Tax on this delivery: {tax}. Current total: {total_inventory}")
-
-        if total_inventory > 500:
-            exit_reason = "capacity exceeded"
+        if failed_entries > 2:
+            exit_reason = "too many invalid inputs"
             break
-        elif total_inventory > 450:
-            print(f"Alert! Approaching capacity ({total_inventory}/500).")
 
-    generate_report(total_inventory, failed_entries, exit_reason)
+        continue
 
+    total_inventory += int(entry)
+    print(f"Added {entry} units. Current total units: {total_inventory}")
 
-if __name__ == "__main__":
-    main()
+    if total_inventory > 500:
+        exit_reason = "capacity exceeded"
+        break
+    elif total_inventory > 450:
+        print(f"Alert! Approaching capacity ({total_inventory}/500).")
+
+if exit_reason == "too many invalid inputs":
+    print("\n🚫 Process Terminated: too many invalid inputs.")
+    print("Please restart and enter valid stock quantities.")
+
+elif exit_reason == "capacity exceeded":
+    print("\n📦 Process Halted: storage capacity exceeded!")
+    print(f"Total Units Processed: {total_inventory}")
+    print(f"Number of Failed/Rejected Entries: {failed_entries}")
+
+else:
+    print ("\n---End of Day Report---")
+    print(f"Total Units Processed: {total_inventory}")
+    print(f"Number of Failed/Rejected Entries: {failed_entries}")
