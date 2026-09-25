@@ -30,6 +30,12 @@ def load_inventory():
     except FileNotFoundError:
         return 0, []
 
+def save_inventory(total, history):
+    with open("inventory.txt", "w") as file:
+        file.write(str(total) + "\n")
+        for entry in history:
+            file.write(str(entry) + "\n")
+
 def generate_report(total_units, failed_attempts, exit_reason):
     if exit_reason == "too many invalid inputs":
         print("\n🚫 Process Terminated: too many invalid inputs.")
@@ -46,7 +52,7 @@ def generate_report(total_units, failed_attempts, exit_reason):
 def main():
     total_inventory = 0
     failed_entries = 0
-    exit_reason = "quit"  # only changes if forced exit happens
+    exit_reason = "quit"  #only changes if forced exit happens
 
     while True:
         entry = get_valid_input()
