@@ -72,7 +72,7 @@ def main():
         total_inventory = process_delivery(total_inventory, entry)
         history.append(entry)
         tax = calculate_tax(entry)
-        print(f"Added {entry} units. Current total units: {total_inventory}")
+        print(f"Added {entry} units. Tax: {tax:.2f}. Current total units: {total_inventory}")
 
         if total_inventory > 500:
             exit_reason = "capacity exceeded"
