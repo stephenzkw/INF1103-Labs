@@ -24,6 +24,8 @@ def load_inventory():
     try:
         with open("inventory.txt", "r") as file:
             lines = file.readlines()
+            if not lines:  # file exists but is empty
+                return 0, []
             total = int(lines[0].strip())
             history = [int(line.strip()) for line in lines[1:]]
             return total, history
@@ -50,7 +52,7 @@ def generate_report(total_units, failed_attempts, exit_reason):
         print(f"Number of Failed/Rejected Entries: {failed_attempts}")
 
 def main():
-    total_inventory = 0
+    total_inventory, history = load_inventory()
     failed_entries = 0
     exit_reason = "quit"  #only changes if forced exit happens
 
@@ -68,6 +70,8 @@ def main():
             continue
 
         total_inventory = process_delivery(total_inventory, entry)
+        history.append(entry)
+        tax = calculate_tax(entry)
         print(f"Added {entry} units. Current total units: {total_inventory}")
 
         if total_inventory > 500:
@@ -76,6 +80,7 @@ def main():
         elif total_inventory > 450:
             print(f"Alert! Approaching capacity ({total_inventory}/500).")
 
+    save_inventory(total_inventory, history)
     generate_report(total_inventory, failed_entries, exit_reason)
 
 main()
