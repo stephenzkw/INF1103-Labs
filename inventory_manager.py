@@ -1,3 +1,21 @@
+import json
+
+def load_inventory():
+    try:
+        with open("inventory.json", "r") as file:
+            data = json.load(file)
+            print("inventory.json found.")
+            print("Inventory loaded successfully.")
+            return data
+    except FileNotFoundError:
+        print("inventory.json not found. Starting with empty inventory.")
+        return []
+
+def save_inventory(inventory):
+    with open("inventory.json", "w") as file:
+        json.dump(inventory, file, indent=4)
+    print("Inventory saved successfully.")
+
 inventory = [
     {"id": "P001", "name": "Laptop", "price": 1200.00, "stock": 15},
     {"id": "P002", "name": "Mouse", "price": 25.50, "stock": 40},
@@ -34,13 +52,30 @@ def update_stock(inventory):
     product_id = input("Enter Product ID: ")
 
     for product in inventory:
-        if product["id"] == ___:
+        if product["id"] == product_id:
             print("Product Found:")
             print(f"Name: {product['name']}")
             print(f"Current Stock: {product['stock']}")
             new_stock = int(input("New Stock Quantity: "))
-            product[___] = new_stock
+            product["stock"] = new_stock
             print("Stock updated successfully!")
+            return
+
+    print("Product not found.")
+
+def search_product(inventory):
+    print("\nSearch Product")
+    product_id = input("Enter Product ID: ")
+
+    for product in inventory:
+        if product["id"] == product_id:
+            print("Product Found")
+            print("-" * 50)
+            print(f"ID: {product['id']}")
+            print(f"Name: {product['name']}")
+            print(f"Price: ${product['price']:.2f}")
+            print(f"Stock: {product['stock']}")
+            print("-" * 50)
             return
 
     print("Product not found.")
