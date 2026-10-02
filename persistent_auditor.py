@@ -1,0 +1,202 @@
+import json
+
+def load_inventory():
+    try:
+        with open("inventory.json", "r") as file:
+            data = json.load(file)
+            print("inventory.json found.")
+            print("Inventory loaded successfully.")
+            return data
+    except FileNotFoundError:
+        print("inventory.json not found. Starting with empty inventory.")
+        return []
+
+def save_inventory(inventory):
+    with open("inventory.json", "w") as file:
+        json.dump(inventory, file, indent=4)
+    print("Inventory saved successfully.")
+
+inventory = [
+    {"id": "P001", "name": "Laptop", "price": 1200.00, "stock": 15},
+    {"id": "P002", "name": "Mouse", "price": 25.50, "stock": 40},
+    {"id": "P003", "name": "Keyboard", "price": 45.00, "stock": 25},
+    {"id": "P004", "name": "Monitor", "price": 300.00, "stock": 10},
+]
+
+def display_all(inventory):
+    print("Current Inventory")
+    print("-" * 50)
+    for product in inventory:
+        print(f"ID: {product['id']} | Name: {product['name']} | Price: ${product['price']:.2f} | Stock: {product['stock']}")
+    print("-" * 50)
+
+def add_product(inventory):
+    print("\nAdd New Product")
+    product_id = input("Product ID: ")
+    name = input("Product Name: ")
+    price = float(input("Price: "))
+    stock = int(input("Stock Quantity: "))
+
+    new_product = {
+        "id": product_id,
+        "name": name,
+        "price": price,
+        "stock": stock,
+    }
+
+    inventory.append(new_product)
+    print("Product added successfully!")
+
+def update_stock(inventory):
+    print("\nUpdate Stock")
+    product_id = input("Enter Product ID: ")
+
+    for product in inventory:
+        if product["id"] == product_id:
+            print("Product Found:")
+            print(f"Name: {product['name']}")
+            print(f"Current Stock: {product['stock']}")
+            new_stock = int(input("New Stock Quantity: "))
+            product["stock"] = new_stock
+            print("Stock updated successfully!")
+            return
+
+    print("Product not found.")
+
+def search_product(inventory):
+    print("\nSearch Product")
+    product_id = input("Enter Product ID: ")
+
+    for product in inventory:
+        if product["id"] == product_id:
+            print("Product Found")
+            print("-" * 50)
+            print(f"ID: {product['id']}")
+            print(f"Name: {product['name']}")
+            print(f"Price: ${product['price']:.2f}")
+            print(f"Stock: {product['stock']}")
+            print("-" * 50)
+            return
+
+    print("Product not found.")
+
+def main():
+    print("=" * 40)
+    print("INVENTORY MANAGEMENT SYSTEM")
+    print("=" * 40)
+
+    inventory = load_inventory()
+
+    while True:
+        print("\n----------- MENU -----------")
+        print("1. Display All Products")
+        print("2. Add Product")
+        print("3. Update Stock")
+        print("4. Search Product")
+        print("5. Save Inventory")
+        print("6. Exit")
+        print("----------------------------")
+        choice = input("Enter option: ")
+
+        if choice == "1":
+            display_all(inventory)
+        elif choice == "2":
+            add_product(inventory)
+        elif choice == "3":
+            update_stock(inventory)
+        elif choice == "4":
+            search_product(inventory)
+        elif choice == "5":
+            print("Saving inventory...")
+            save_inventory(inventory)
+        elif choice == "6":
+            print("Saving inventory before exit...")
+            save_inventory(inventory)
+            print("Thank you for using Inventory Management System.")
+
+def get_valid_input():
+    entry = input("Enter stock quantity (or type 'quit' to exit): ")
+
+    if entry.lower() == 'quit':
+        return "quit"
+
+    if entry.startswith("-") and entry[1:].isdigit(): 
+        print("Negative values are not allowed")
+        return None
+
+    if not entry.isdigit():
+        print("Invalid entry. Please enter a valid number.")
+        return None
+
+    return int(entry)
+
+def process_delivery(current_total, new_value):
+    return current_total + new_value
+
+def calculate_tax(amount):
+    return round(amount * 0.10, 2)
+
+def load_inventory():
+    try:
+        with open("inventory.txt", "r") as file:
+            lines = file.readlines()
+            if not lines:  # file exists but is empty
+                return 0, []
+            total = int(lines[0].strip())
+            history = [int(line.strip()) for line in lines[1:]]
+            return total, history
+    except FileNotFoundError:
+        return 0, []
+
+def save_inventory(total, history):
+    with open("inventory.txt", "w") as file:
+        file.write(str(total) + "\n")
+        for entry in history:
+            file.write(str(entry) + "\n")
+
+def generate_report(total_units, failed_attempts, exit_reason):
+    if exit_reason == "too many invalid inputs":
+        print("\n🚫 Process Terminated: too many invalid inputs.")
+        print("Please restart and enter valid stock quantities.")
+    elif exit_reason == "capacity exceeded":
+        print("\n📦 Process Halted: storage capacity exceeded!")
+        print(f"Total Units Processed: {total_units}")
+        print(f"Number of Failed/Rejected Entries: {failed_attempts}")
+    else:
+        print("\n--- End of Day Report ---")
+        print(f"Total Units Processed: {total_units}")
+        print(f"Number of Failed/Rejected Entries: {failed_attempts}")
+
+def main():
+    total_inventory, history = load_inventory()
+    failed_entries = 0
+    exit_reason = "quit"  #only changes if forced exit happens
+
+    while True:
+        entry = get_valid_input()
+
+        if entry == "quit":
+            break
+
+        if entry is None:
+            failed_entries += 1
+            if failed_entries > 2:
+                exit_reason = "too many invalid inputs"
+                break
+            continue
+
+        total_inventory = process_delivery(total_inventory, entry)
+        history.append(entry)
+        tax = calculate_tax(entry)
+        print(f"Added {entry} units. Tax: {tax:.2f}. Current total units: {total_inventory}")   
+
+        if total_inventory > 500:
+            exit_reason = "capacity exceeded"
+            break
+        elif total_inventory > 450:
+            print(f"Alert! Approaching capacity ({total_inventory}/500).")
+
+    save_inventory(total_inventory, history)
+    generate_report(total_inventory, failed_entries, exit_reason)
+
+main()
