@@ -12,6 +12,39 @@ def display_all(inventory):
         print(f"ID: {product['id']} | Name: {product['name']} | Price: ${product['price']:.2f} | Stock: {product['stock']}")
     print("-" * 50)
 
+def add_product(inventory):
+    print("\nAdd New Product")
+    product_id = input("Product ID: ")
+    name = input("Product Name: ")
+    price = float(input("Price: "))
+    stock = int(input("Stock Quantity: "))
+
+    new_product = {
+        "id": product_id,
+        "name": name,
+        "price": price,
+        "stock": stock,
+    }
+
+    inventory.append(new_product)
+    print("Product added successfully!")
+
+def update_stock(inventory):
+    print("\nUpdate Stock")
+    product_id = input("Enter Product ID: ")
+
+    for product in inventory:
+        if product["id"] == ___:
+            print("Product Found:")
+            print(f"Name: {product['name']}")
+            print(f"Current Stock: {product['stock']}")
+            new_stock = int(input("New Stock Quantity: "))
+            product[___] = new_stock
+            print("Stock updated successfully!")
+            return
+
+    print("Product not found.")
+
 def get_valid_input():
     entry = input("Enter stock quantity (or type 'quit' to exit): ")
 
