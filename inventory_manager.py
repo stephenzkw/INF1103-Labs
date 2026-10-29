@@ -9,7 +9,6 @@ class Product:
         self.__price = price
         self.__stock = stock
 
-    # ---------- Read-only access (getters) ----------
     def get_product_id(self):
         return self.__product_id
 
@@ -22,7 +21,6 @@ class Product:
     def get_stock(self):
         return self.__stock
 
-    # ---------- Behaviour ----------
     def update_stock(self, quantity):
         """Set the stock to a new quantity. The Product decides what is valid."""
         if quantity < 0:
@@ -43,7 +41,6 @@ class Product:
         return (f"ID: {self.__product_id} | Name: {self.__name} | "
                 f"Price: ${self.__price:.2f} | Stock: {self.__stock}")
 
-    # ---------- Conversion helpers for JSON ----------
     def to_dict(self):
         return {
             "id": self.__product_id,
@@ -57,7 +54,6 @@ class Product:
         return cls(data["id"], data["name"], data["price"], data["stock"])
 
 
-# ---------- Inventory: manages a COLLECTION of products ----------
 class Inventory:
     """Manages a collection of Product objects."""
 
@@ -90,7 +86,6 @@ class Inventory:
         return list(self.__products)
 
 
-# ---------- File handling (kept in the main program for now) ----------
 def load_inventory():
     inventory = Inventory()
     try:
@@ -115,7 +110,6 @@ def save_inventory(inventory):
     print("Inventory saved successfully.")
 
 
-# ---------- Menu actions: get input, then call Inventory / Product ----------
 def add_product(inventory):
     print("\nAdd New Product")
     product_id = input("Product ID: ")
@@ -151,7 +145,6 @@ def update_stock(inventory):
         product.update_stock(new_stock)
         print("Stock updated successfully!")
     except ValueError as error:
-        # Covers both non-numeric input and Product rejecting a negative value
         print(f"Stock not updated: {error}")
 
 
