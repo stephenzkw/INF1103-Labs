@@ -5,12 +5,10 @@ from abc import ABC, abstractmethod
 class Supplier:
     """Supplies products. Exists independently of any Product."""
 
-    def __init__(self, product_id: str, name: str, price: float, stock: int, supplier: Supplier):
-       self.__product_id = product_id
-       self.__name = name
-       self.__price = price
-       self.__stock = stock
-       self.__supplier: Supplier = supplier
+    def __init__(self, supplier_id: str, name: str, contact_email: str):
+        self.__supplier_id: str = supplier_id
+        self.__name: str = name
+        self.__contact_email: str = contact_email
 
     def get_supplier_id(self) -> str:
         return self.__supplier_id
@@ -38,12 +36,12 @@ class CanBeShipped(ABC):
 class Product(ABC):
     """Common data and behaviour shared by all products."""
 
-    def __init__(self, product_id, name, price, stock):
-        # Double underscore = private by convention (name mangling)
+    def __init__(self, product_id: str, name: str, price: float, stock: int, supplier: Supplier):
         self.__product_id = product_id
         self.__name = name
         self.__price = price
         self.__stock = stock
+        self.__supplier: Supplier = supplier
 
     # ---------- Read-only access (getters) ----------
     def get_product_id(self):
