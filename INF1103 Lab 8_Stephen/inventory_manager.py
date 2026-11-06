@@ -5,10 +5,12 @@ from abc import ABC, abstractmethod
 class Supplier:
     """Supplies products. Exists independently of any Product."""
 
-    def __init__(self, supplier_id: str, name: str, contact_email: str):
-        self.__supplier_id: str = supplier_id
-        self.__name: str = name
-        self.__contact_email: str = contact_email
+    def __init__(self, product_id: str, name: str, price: float, stock: int, supplier: Supplier):
+       self.__product_id = product_id
+       self.__name = name
+       self.__price = price
+       self.__stock = stock
+       self.__supplier: Supplier = supplier
 
     def get_supplier_id(self) -> str:
         return self.__supplier_id
@@ -34,11 +36,7 @@ class CanBeShipped(ABC):
 
 
 class Product(ABC):
-    """Common data and behaviour shared by all products.
-
-    Product is abstract: a product must be either physical or digital,
-    so it cannot be created directly.
-    """
+    """Common data and behaviour shared by all products."""
 
     def __init__(self, product_id, name, price, stock):
         # Double underscore = private by convention (name mangling)
@@ -59,6 +57,9 @@ class Product(ABC):
 
     def get_stock(self):
         return self.__stock
+
+    def get_supplier(self) -> Supplier:
+       return self.__supplier
 
     # Behaviour shared by all products
     def update_stock(self, quantity):
