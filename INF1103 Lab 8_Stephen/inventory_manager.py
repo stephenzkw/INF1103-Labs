@@ -98,8 +98,8 @@ class Product(ABC):
 class PhysicalProduct(Product, CanBeShipped):
     """A product that is stored and shipped. Weight is in kilograms."""
 
-    BASE_SHIPPING = 5.00     # flat fee in dollars
-    RATE_PER_KG = 2.00       # dollars per kilogram
+    BASE_SHIPPING = 5.00     # Flat fee in dollars
+    RATE_PER_KG = 2.00       # Dollars per kilogram
 
     def __init__(self, product_id: str, name: str, price: float, stock: int,
                  supplier: Supplier, weight: float):
@@ -172,7 +172,7 @@ class DigitalProduct(Product):
                    data["download_size"])
 
 
-# Inventory: manages a COLLECTION of products
+# Inventory: manages a collection of products
 class Inventory:
 
     def __init__(self):
@@ -212,10 +212,6 @@ PRODUCT_TYPES = {
 
 
 def create_product_from_dict(data):
-    """Use the saved type to build the right subclass.
-
-    Older Lab 6 files have no "type", so they load as physical products.
-    """
     product_type = data.get("type", "physical")
     return PRODUCT_TYPES[product_type].from_dict(data)
 
@@ -293,7 +289,7 @@ def update_stock(inventory):
         product.update_stock(new_stock)
         print("Stock updated successfully!")
     except ValueError as error:
-        # Covers both non-numeric input and Product, rejecting negative value
+        """Covers both non-numeric input and Product, rejecting negative value"""
         print(f"Stock not updated: {error}")
 
 
