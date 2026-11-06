@@ -89,22 +89,23 @@ class Product(ABC):
             "stock": self.__stock,
         }
 
-    # ---------- Abstract: every subclass MUST implement this ----------
+    # Abstract: every subclass MUST implement this
     @abstractmethod
     def get_fulfilment_info(self):
         """Return a message describing how this product is fulfilled."""
         pass
 
 
-# ---------- PhysicalProduct: is-a Product, and can be shipped ----------
+# Physical Product: is a Product, and can be shipped 
 class PhysicalProduct(Product, CanBeShipped):
     """A product that is stored and shipped. Weight is in kilograms."""
 
     BASE_SHIPPING = 5.00     # flat fee in dollars
     RATE_PER_KG = 2.00       # dollars per kilogram
 
-    def __init__(self, product_id, name, price, stock, weight):
-        super().__init__(product_id, name, price, stock)
+    def __init__(self, product_id: str, name: str, price: float, stock: int,
+                 supplier: Supplier, weight: float):
+        super().__init__(product_id, name, price, stock, supplier)
         if weight < 0:
             raise ValueError("Weight cannot be negative.")
         self.__weight = weight
@@ -141,8 +142,9 @@ class PhysicalProduct(Product, CanBeShipped):
 class DigitalProduct(Product):
     """A product delivered digitally. Download size is in megabytes."""
 
-    def __init__(self, product_id, name, price, stock, download_size):
-        super().__init__(product_id, name, price, stock)
+    def __init__(self, product_id: str, name: str, price: float, stock: int,
+                 supplier: Supplier, download_size: float):
+        super().__init__(product_id, name, price, stock, supplier)
         if download_size < 0:
             raise ValueError("Download size cannot be negative.")
         self.__download_size = download_size
