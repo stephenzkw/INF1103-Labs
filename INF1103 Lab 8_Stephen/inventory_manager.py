@@ -76,6 +76,72 @@ class Product(ABC):
         if quantity < 0:
             raise ValueError("Stock cannot be negative.")
 
+    def display_information(self) -> None:
+        print(f"ID: {self.__product_id}")
+        print(f"Name: {self.__name}")
+        print(f"Price: ${self.__price:.2f}")
+        print(f"Stock: {self.__stock}")
+
+    def __str__(self) -> str:
+        """One-line summary of the common details."""
+        return (f"ID: {self.__product_id} | Name: {self.__name} | "
+                f"Price: ${self.__price:.2f} | Stock: {self.__stock}")
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.__product_id,
+            "name": self.__name,
+            "price": self.__price,
+            "stock": self.__stock,
+            "supplier": self.__supplier.to_dict(),
+        }
+
+    @abstractmethod
+    def get_fulfilment_info(self) -> str:
+        pass
+
+
+# Physical Product
+class PhysicalProduct(Product, CanBeShipped):
+    """A product that is stored and shipped. Weight is in kilograms."""
+
+    BASE_SHIPPING: float = 5.00     # Flat fee in dollars
+    RATE_PER_KG: float = 2.00       # Dollars per kilogram
+
+    def __init__(self, product_id: str, name: str, price: float, stock: int,
+                 supplier: Supplier, weight: float):
+        super().__init__(product_id, name, price, stock, supplier)
+        if weight < 0:
+            raise ValueError("Weight cannot be negative.")
+        self.__weight: float = weight
+
+    def get_weight(self) -> float:
+        return self.__weight
+
+    def display_information(self) -> None:
+        super().display_information()
+        print(f"Weight: {self.__weight} kg")
+
+    def __str__(self) -> str:
+        return super().__str__() + f" | Weight: {self.__weight} kg"
+
+    def get_fulfilment_info(self) -> str:
+        return "Physical product: requires storage and physical shipping."
+
+    def calculate_shipping_cost(self) -> float:
+        return self.BASE_SHIPPING + self.RATE_PER_KG * self.__weight
+
+    def to_dict(self) -> dict:
+        data = super().to_dict()
+        data["type"] = "physical"
+        data["weight"] = self.__weight
+        return data
+
+    @classmethod
+    def from_dict(cls, data: dict, supplier: Supplier) -> "PhysicalProduct":
+        return cls(data["id"], data["name"], data["price"], data["stock"],
+                   supplier, data.get("weight", 0.0))
+
 
 # Digital Product
 class DigitalProduct(Product):
