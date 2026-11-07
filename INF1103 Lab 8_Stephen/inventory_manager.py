@@ -24,6 +24,17 @@ class Supplier:
         print(f"Supplier Name: {self.__name}")
         print(f"Contact Email: {self.__contact_email}")
 
+    def to_dict(self) -> dict:
+        return {
+            "id": self.__supplier_id,
+            "name": self.__name,
+            "contact_email": self.__contact_email,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Supplier":
+        return cls(data["id"], data["name"], data["contact_email"])
+
 class CanBeShipped(ABC):
     """Contract for anything that can be shipped. No attributes, no implementation."""
 
@@ -85,6 +96,7 @@ class Product(ABC):
             "name": self.__name,
             "price": self.__price,
             "stock": self.__stock,
+            "supplier": self.__supplier.to_dict(),
         }
 
     # Abstract: every subclass MUST implement this
@@ -131,9 +143,9 @@ class PhysicalProduct(Product, CanBeShipped):
         return data
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, supplier: Supplier):
         return cls(data["id"], data["name"], data["price"], data["stock"],
-                   data.get("weight", 0.0))
+                   supplier, data.get("weight", 0.0))
 
 
 # Digital Product
@@ -167,9 +179,9 @@ class DigitalProduct(Product):
         return data
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, supplier: Supplier):
         return cls(data["id"], data["name"], data["price"], data["stock"],
-                   data["download_size"])
+                   supplier, data["download_size"])
 
 
 # Inventory: manages a collection of products
@@ -211,26 +223,34 @@ PRODUCT_TYPES = {
 }
 
 
-def create_product_from_dict(data):
+def create_product_from_dict(data: dict, suppliers: dict) -> Product:
+    """Rebuild a product. Products with the same supplier id share one Supplier object."""
+    supplier_data = data["supplier"]
+    supplier_id = supplier_data["id"]
+    if supplier_id not in suppliers:
+        suppliers[supplier_id] = Supplier.from_dict(supplier_data)
     product_type = data.get("type", "physical")
-    return PRODUCT_TYPES[product_type].from_dict(data)
+    return PRODUCT_TYPES[product_type].from_dict(data, suppliers[supplier_id])
 
 
 def load_inventory():
     inventory = Inventory()
+    suppliers = {}
     try:
         with open("inventory.json", "r") as file:
             data = json.load(file)
             for item in data:
-                inventory.add_product(create_product_from_dict(item))
+                inventory.add_product(create_product_from_dict(item, suppliers))
             print("inventory.json found.")
             print("Inventory loaded successfully.")
     except FileNotFoundError:
         print("inventory.json not found. Starting with default inventory.")
-        inventory.add_product(PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.1))
-        inventory.add_product(PhysicalProduct("P002", "Mouse", 25.50, 40, 0.1))
-        inventory.add_product(PhysicalProduct("P003", "Keyboard", 45.00, 25, 0.8))
-        inventory.add_product(DigitalProduct("P004", "Antivirus License", 59.90, 100, 150.0))
+        tech = Supplier("S001", "TechSource Pte Ltd", "sales@techsource.com")
+        software = Supplier("S002", "SoftWorks Pte Ltd", "hello@softworks.com")
+        inventory.add_product(PhysicalProduct("P001", "Laptop", 1200.00, 15, tech, 2.1))
+        inventory.add_product(PhysicalProduct("P002", "Mouse", 25.50, 40, tech, 0.1))
+        inventory.add_product(PhysicalProduct("P003", "Keyboard", 45.00, 25, tech, 0.8))
+        inventory.add_product(DigitalProduct("P004", "Antivirus License", 59.90, 100, software, 150.0))
     return inventory
 
 
@@ -253,15 +273,18 @@ def add_product(inventory):
 
     product_id = input("Product ID: ")
     name = input("Product Name: ")
+    print("Supplier details")
+    supplier = Supplier(input("Supplier ID: "), input("Supplier Name: "),
+                        input("Supplier Email: "))
     try:
         price = float(input("Price: "))
         stock = int(input("Stock Quantity: "))
         if product_type == "1":
             weight = float(input("Weight (kg): "))
-            product = PhysicalProduct(product_id, name, price, stock, weight)
+            product = PhysicalProduct(product_id, name, price, stock, supplier, weight)
         else:
             download_size = float(input("Download Size (MB): "))
-            product = DigitalProduct(product_id, name, price, stock, download_size)
+            product = DigitalProduct(product_id, name, price, stock, supplier, download_size)
     except ValueError as error:
         print(f"Invalid input. Product not added. ({error})")
         return
@@ -305,6 +328,7 @@ def search_product(inventory):
     print("Product Found")
     print("-" * 50)
     product.display_information()
+    product.get_supplier().display_information()
     print(product.get_fulfilment_info())
     # Only products that signed the CanBeShipped contract have a shipping cost
     if isinstance(product, CanBeShipped):
