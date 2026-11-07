@@ -72,9 +72,10 @@ class Product(ABC):
 
     # Behaviour shared by all products
     def update_stock(self, quantity: int) -> None:
-        """Set the stock to a new quantity. The Product decides what is valid."""
-        if quantity < 0:
-            raise ValueError("Stock cannot be negative.")
+       """Set the stock to a new quantity. The Product decides what is valid."""
+       if quantity < 0:
+           raise ValueError("Stock cannot be negative.")
+       self.__stock = quantity
 
     def display_information(self) -> None:
         print(f"ID: {self.__product_id}")
@@ -360,11 +361,11 @@ def add_product(inventory):
         print("A product with that ID already exists.")
 
 
-def update_stock(inventory):
+def update_stock(inventory: Inventory) -> None:
     print("\nUpdate Stock")
     product_id = input("Enter Product ID: ")
 
-    product = inventory.search_product(product_id)
+    product = inventory.find_product(product_id)
     if product is None:
         print("Product not found.")
         return
