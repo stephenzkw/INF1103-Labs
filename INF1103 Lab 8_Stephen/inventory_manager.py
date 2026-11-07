@@ -36,7 +36,7 @@ class Supplier:
         return cls(data["id"], data["name"], data["contact_email"])
 
 class CanBeShipped(ABC):
-    """Contract for anything that can be shipped. No attributes, no implementation."""
+    """Contract for anything that can be shipped."""
 
     @abstractmethod
     def calculate_shipping_cost(self):
@@ -54,7 +54,7 @@ class Product(ABC):
         self.__stock = stock
         self.__supplier: Supplier = supplier
 
-    # ---------- Read-only access (getters) ----------
+    # Read-only access (getters)
     def get_product_id(self):
         return self.__product_id
 
@@ -78,7 +78,6 @@ class Product(ABC):
         self.__stock = quantity
 
     def display_information(self):
-        """Print the common details. Subclasses call this, then add their own."""
         print(f"ID: {self.__product_id}")
         print(f"Name: {self.__name}")
         print(f"Price: ${self.__price:.2f}")
@@ -90,7 +89,6 @@ class Product(ABC):
                 f"Price: ${self.__price:.2f} | Stock: {self.__stock}")
 
     def to_dict(self):
-        """Common fields only. Subclasses add their type and extra fields."""
         return {
             "id": self.__product_id,
             "name": self.__name,
@@ -102,11 +100,10 @@ class Product(ABC):
     # Abstract: every subclass MUST implement this
     @abstractmethod
     def get_fulfilment_info(self):
-        """Return a message describing how this product is fulfilled."""
         pass
 
 
-# Physical Product: is a Product, and can be shipped 
+# Physical Product
 class PhysicalProduct(Product, CanBeShipped):
     """A product that is stored and shipped. Weight is in kilograms."""
 
@@ -184,35 +181,41 @@ class DigitalProduct(Product):
                    supplier, data["download_size"])
 
 
-# Inventory: manages a collection of products
+# Inventory
 class Inventory:
 
     def __init__(self):
-        self.__products = []
+        self.__products: list[Product] = []
 
-    def add_product(self, product):
-        """Add a product. Returns False if the ID already exists."""
-        if self.search_product(product.get_product_id()) is not None:
+    def add_product(self, product: Product) -> bool:
+        """Add an existing Product. Returns False if the ID already exists."""
+        if self.find_product(product.get_product_id()) is not None:
             return False
         self.__products.append(product)
         return True
 
-    def search_product(self, product_id):
-        """Return the Product with this ID, or None if not found."""
+    def remove_product(self, product_id: str) -> Product | None:
+        """Remove the Product from this inventory and hand it back."""
+        product = self.find_product(product_id)
+        if product is not None:
+            self.__products.remove(product)
+        return product
+
+    def find_product(self, product_id: str) -> Product | None:
+        """Return the matching Product, or None if it cannot be found."""
         for product in self.__products:
             if product.get_product_id() == product_id:
                 return product
         return None
 
-    def display_all(self):
+    def display_all(self) -> None:
         print("Current Inventory")
         print("-" * 50)
         for product in self.__products:
             print(product)
         print("-" * 50)
 
-    def get_all_products(self):
-        """Return a copy of the product list (for saving to file)."""
+    def get_all_products(self) -> list[Product]:
         return list(self.__products)
 
 
